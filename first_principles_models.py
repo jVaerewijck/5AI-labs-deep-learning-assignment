@@ -9,13 +9,17 @@ class LinearModel():
         
         if len(output_shape) != 1:
             raise ValueError("the output shape must be one-dimensional")
-        
+
+        # This is what you call when you call the weights function
         self.weights = self.init_weights(input_shape, output_shape)
 
     def init_weights(self, input_shape: Size, output_shape: Size) -> Tensor:
         """Create the model's weight tensor."""
+
+
+
         # TODO: Initialize one small random weight for every input-output connection.
-        raise NotImplementedError()
+        #raise NotImplementedError()
 
     def calculate_output(self, input: Tensor) -> Tensor:
         """Apply the model to an input tensor."""
