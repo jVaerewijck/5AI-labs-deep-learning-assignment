@@ -2,7 +2,6 @@ import torch
 
 from torch import Tensor, Size
 
-
 class LinearModel():
 
     def __init__(self, input_shape: Size, output_shape: Size):
@@ -16,10 +15,12 @@ class LinearModel():
     def init_weights(self, input_shape: Size, output_shape: Size) -> Tensor:
         """Create the model's weight tensor."""
 
+        weight_shape = (input_shape + output_shape)                                             # We add the new dimensions form the output-shape to the dimension from teh input shape, giving us the shape of our weight
+        weight_tens_rand = torch.randn(weight_shape, dtype=torch.float32)                       # Create a new tensor with the calculated weight-shape and initialize it with random values given the standard distribution
+        weight_multiplier = 0.1                                                                 # This is the multiplier to make our generated random weights smaller, keeping them more to the center (0)
+        weight_tens_adj = torch.mul(weight_tens_rand, weight_multiplier)                        # Here we multiply our tensor with random values with a constant, this way we can bring our values closer to "0" without losing the direction and absolute distance between weights
 
-
-        # TODO: Initialize one small random weight for every input-output connection.
-        #raise NotImplementedError()
+        return weight_tens_adj                                                                  # Return the adjusted weights
 
     def calculate_output(self, input: Tensor) -> Tensor:
         """Apply the model to an input tensor."""
