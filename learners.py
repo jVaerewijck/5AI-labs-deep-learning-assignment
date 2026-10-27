@@ -45,8 +45,15 @@ class RegressionLearner(Learner):
                 targets = targets.to(device)
 
                 # TODO: Implement the batch update step.
-
                 loss = torch.tensor([0])
+                self.optimizer.zero_grad()
+
+                predictions = self.model(data)
+
+                loss = self.criterion(predictions, targets)
+
+                loss.backward()
+                self.optimizer.step()
 
                 train_loss += loss.item() * len(data)
 
@@ -75,7 +82,18 @@ class RegressionLearner(Learner):
         test_loss = 0
 
         # TODO: Compute the model's RMSE on the test dataset.
+        
+        with torch.no_grad():
+            for data, targets in DataLoader(dataset):
+                data = data.to(device)
+                targets = targets.to(device)
 
+                predictions = self.model(data)
+                loss = self.criterion(predictions, targets)
+
+                test_loss += loss.item() * len(data)
+
+        test_loss = (test_loss / len(dataset)) ** 0.5
         return test_loss
 
     @torch.no_grad()
