@@ -1,6 +1,8 @@
 import torch
 
 from torch import Tensor, Size
+from torch._C import dtype
+
 
 class LinearModel():
 
@@ -9,7 +11,7 @@ class LinearModel():
         if len(output_shape) != 1:
             raise ValueError("the output shape must be one-dimensional")
 
-        # This is what you call when you call the weights function
+        # Initialize the model weights and store the resulting tensor
         self.weights = self.init_weights(input_shape, output_shape)
 
     def init_weights(self, input_shape: Size, output_shape: Size) -> Tensor:
@@ -24,18 +26,35 @@ class LinearModel():
 
     def calculate_output(self, input: Tensor) -> Tensor:
         """Apply the model to an input tensor."""
-        # TODO: Calculate the unrestricted linear output without flattening the input.
-        raise NotImplementedError()
+
+        input_adj = torch.unsqueeze(input, 3)                                               # add a 4th dimension to the input-data, this makes it compatible with the 4D-tensor from our weights
+        mul_in_w = torch.mul(input_adj, self.weights)                                           # element wise multiplication on the un-squeezed input and the weights
+        sum_out = torch.sum(mul_in_w, dim=(0,1,2), dtype=torch.float32)                         # Sum up all the dimensions until only the output dimension is left, also explicitly make the tensor a 32-bit float
+
+        return sum_out                                                                          # Return the 32-bit tensor with shape (2)
+
 
     def calculate_loss(self, output: Tensor, target: Tensor) -> Tensor:
         """Measure the discrepancy between a model output and its target."""
-        # TODO: Calculate the mean squared error.
-        raise NotImplementedError()
+
+        ind_sq = (output - target) ** 2                                                         # We first subtract our target value from our input value, then we execute element wise squared operations to each datapoint in our tensor
+        mse = torch.mean(ind_sq,dtype=torch.float32)                                            # Then we take the mean-value of the previous tensor and, we get a 0D-tensor wit only 1 value which is our MSE
+
+        return mse                                                                              # Then we return the tensor (IMPORTANT => it's still a tensor!)
 
     def calculate_gradients(self, input: Tensor, output: Tensor, target: Tensor) -> Tensor:
         """Calculate the gradient of the loss with respect to every model weight."""
-        # TODO: Use the MSE and linear-layer derivatives to calculate d(loss)/d(weights) manually.
-        raise NotImplementedError()
+
+        predict_error = (output - target)                                                       # Output and target tensor ar both 1D-tensors at this moment!
+
+        print("Output:", output, "| Shape:", output.shape)                                      # Some visual aid
+        print("Target:", target, "| Shape:", target.shape)                                      #   ""
+        print("Predict error:", predict_error, "| Shape:", predict_error.shape)                 #   ""
+
+        in_unsq = torch.unsqueeze(input, dim=3)                                                 # Here we unsqueeze the input tensor which is 3D -> 4D, where the default value will be 1 in the 4th dimension
+        in_mul_loss = torch.mul(in_unsq, predict_error)                                         # Here we multiply our 3D-tensor with our 1D-tensor, so we basically get (in this case) 2 3D-tensors within a 4D-tensor.
+
+        return in_mul_loss                                                                      # Here we return our gradients in 4D-tensor format
 
     def update_weights(self, gradients: Tensor, learning_rate: float) -> Tensor:
         """Update the model parameters using the supplied gradients."""
