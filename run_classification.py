@@ -70,15 +70,15 @@ plot_images_and_labels(sample_data, sample_targets)
 
 # create an instance of the classifier model
 
-model = None
+model = NeuralNetworkClassificationModel()
 
 # create an instance of an appropriate criterion (loss function) (see https://pytorch.org/docs/stable/nn.html#loss-functions)
 
-criterion = None
+criterion = torch.nn.CrossEntropyLoss()
 
 # create an instance of an appropriate optimizer to train the model parameters (see https://pytorch.org/docs/stable/optim.html)
 
-optimizer = None
+optimizer = torch.optim.SGD(model.parameters(),learning_rate)
 
 """END TODO"""
 
