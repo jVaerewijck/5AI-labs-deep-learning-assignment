@@ -58,8 +58,13 @@ class LinearModel():
 
     def update_weights(self, gradients: Tensor, learning_rate: float) -> Tensor:
         """Update the model parameters using the supplied gradients."""
-        # TODO: Perform one gradient-descent step and return the updated weights.
-        raise NotImplementedError()
+
+        adjusted_gradients = torch.mul(gradients, learning_rate)
+        adjusted_weights = torch.sub(self.weights, adjusted_gradients)
+
+        self.weights = adjusted_weights
+
+        return adjusted_weights
 
     def train_step(self, input: Tensor, target: Tensor, learning_rate: float) -> float:
         """Run one optimization step for an input-target pair."""
