@@ -13,6 +13,8 @@ class LinearModel():
 
         # Initialize the model weights and store the resulting tensor
         self.weights = self.init_weights(input_shape, output_shape)
+        self.input_shape = Size(input_shape)
+        self.output_shape = Size(output_shape)
 
     def init_weights(self, input_shape: Size, output_shape: Size) -> Tensor:
         """Create the model's weight tensor."""
@@ -91,11 +93,38 @@ class LinearSigmoidModel(LinearModel):
 
     def calculate_output(self, input: Tensor) -> Tensor:
         """Apply the model to an input tensor."""
-        # TODO: Calculate the linear logits and apply the sigmoid activation.
-        raise NotImplementedError()
 
-    def calculate_gradients(self, input: Tensor, output: Tensor, target: Tensor) -> Tensor:
+        len_in = len(self.input_shape)
+
+        logits = torch.tensordot(
+            input,
+            self.weights,
+            dims=(
+                list(range(input.ndim - len_in, input.ndim)),
+                list(range(len_in))
+            ),
+        )
+
+        return torch.sigmoid(logits)
+
+    def calculate_gradients(
+        self, input: Tensor, output: Tensor, target: Tensor
+    ) -> Tensor:
         """Calculate the gradient of the loss with respect to every model weight."""
-        # TODO: Use the MSE, sigmoid, and linear-layer derivatives to calculate d(loss)/d(weights) manually.
-        raise NotImplementedError()
+
+        error = output - target
+        d_loss = 2 * error / error.numel()
+
+        d_logits = d_loss * output * (1 - output)
+
+        len_in = len(self.input_shape)
+
+        # Batch dimensions, otherwise plain outer product
+        batch_dims = list(range(input.ndim - len_in))
+
+        return torch.tensordot(
+            input,
+            d_logits,
+            dims=(batch_dims, batch_dims)
+        )
 
