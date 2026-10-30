@@ -59,15 +59,15 @@ train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size)
 
 # create an instance of the linear regression model
 
-model = None
+model = LinearRegressionModel()
 
 # create an instance of an appropriate criterion (loss function) (see https://pytorch.org/docs/stable/nn.html#loss-functions)
 
-criterion = None
+criterion = torch.nn.L1Loss()
 
 # create an instance of an appropriate opimizer to train the model parameters (see https://pytorch.org/docs/stable/optim.html)
 
-optimizer = None
+optimizer = torch.optim.SGD(model.parameters(),learning_rate)
 
 """END TODO"""
 

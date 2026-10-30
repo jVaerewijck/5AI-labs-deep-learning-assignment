@@ -45,8 +45,15 @@ class RegressionLearner(Learner):
                 targets = targets.to(device)
 
                 # TODO: Implement the batch update step.
-
                 loss = torch.tensor([0])
+                self.optimizer.zero_grad()
+
+                predictions = self.model(data)
+
+                loss = self.criterion(predictions, targets)
+
+                loss.backward()
+                self.optimizer.step()
 
                 train_loss += loss.item() * len(data)
 
@@ -75,7 +82,18 @@ class RegressionLearner(Learner):
         test_loss = 0
 
         # TODO: Compute the model's RMSE on the test dataset.
+        
+        #with torch.no_grad():
+        for data, targets in DataLoader(dataset):
+            data = data.to(device)
+            targets = targets.to(device)
 
+            predictions = self.model(data)
+            loss = self.criterion(predictions, targets)
+
+            test_loss += loss.item() * len(data)
+
+        test_loss = (test_loss / len(dataset)) ** 0.5
         return test_loss
 
     @torch.no_grad()
@@ -112,8 +130,15 @@ class ClassificationLearner(Learner):
                 targets = targets.to(device)
                 
                 # TODO: Implement the batch update step.
-
                 loss = torch.tensor([0])
+                self.optimizer.zero_grad()
+
+                predictions = self.model(data)
+
+                loss = self.criterion(predictions, targets)
+
+                loss.backward()
+                self.optimizer.step()
 
                 train_loss += loss.item() * len(data)
 
@@ -154,7 +179,23 @@ class ClassificationLearner(Learner):
     def _evaluate(self, dataloader, device):
         eval_loss = 0
         eval_accuracy = 0
+        correct = 0
 
         # TODO: Compute the model's loss and accuracy over the dataset.
+        self.model.eval() 
+
+        for data, targets in dataloader:
+            data = data.to(device)
+            targets = targets.to(device)
+
+            predictions = self.model(data)
+            loss = self.criterion(predictions, targets)
+
+            eval_loss += loss.item() * len(data)
+            correct += (predictions.argmax(dim=1) == targets).sum().item()
+
+        n = len(dataloader.dataset)
+        eval_loss /= n
+        eval_accuracy = correct / n
 
         return (eval_loss, eval_accuracy)
