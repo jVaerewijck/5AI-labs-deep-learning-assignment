@@ -6,8 +6,6 @@ from torch.nn import Module
 from torch.optim import Optimizer
 from torch.utils.data import Dataset, DataLoader
 
-from classification_experiments import criterion
-
 
 class Learner():
 
