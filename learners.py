@@ -94,11 +94,11 @@ class RegressionLearner(Learner):
 
     @torch.no_grad()
     def predict(self, dataset, device):
-        self.model.to(device)
-        self.model.eval()
-        data = dataset[:][0]
-        data = data.to(device)
-        results = self.model(data)
+        self.model.to(device)                                   # Move model to desired device CPU/GPU
+        self.model.eval()                                       # Put the model in evaluation mode
+        data = dataset[:][0]                                    # Pull the square footage for the houses
+        data = data.to(device)                                  # Move the data to the desired device CPU/GPU
+        results = self.model(data)                              # Run the model and store the results
         return results
 
 
