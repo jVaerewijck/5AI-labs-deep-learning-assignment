@@ -79,14 +79,12 @@ class RegressionLearner(Learner):
         test_loss = 0                                           # Initialize the test-loss variable
 
         # TODO: Compute the model's RMSE on the test dataset.
-        
-        #with torch.no_grad():
+        criterion = torch.nn.MSELoss()                          # Create the MSE loss function
         for data, targets in DataLoader(dataset):
             data = data.to(device)                              # Move the data to the device CPU/GPU
             targets = targets.to(device)                        # Move the targets to the device CPU/GPU
 
             predictions = self.model(data)                      # Run the model and us e the recently moved data
-            criterion = torch.nn.MSELoss()                      # Create the MSE loss function
             loss = criterion(predictions, targets)              # Calculate the mean squared error
 
             test_loss += loss.item() * len(data)                # Multiply the batch-loss with the amount of data in each batch
