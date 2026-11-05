@@ -5,7 +5,7 @@ class LinearRegressionModel(torch.nn.Module):
     def __init__(self):
         super().__init__()
         # TODO: Define the linear regression layer.
-        self.linear_layer = torch.nn.Linear(1,1)
+        self.linear_layer = torch.nn.Linear(1,1)                            # Create linear regression model with 2 layers
 
     def forward(self, x: torch.Tensor):
         # TODO: Implement the forward pass.

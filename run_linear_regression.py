@@ -58,15 +58,12 @@ train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size)
 """START TODO: fill in the missing parts"""
 
 # create an instance of the linear regression model
-
 model = LinearRegressionModel()
 
 # create an instance of an appropriate criterion (loss function) (see https://pytorch.org/docs/stable/nn.html#loss-functions)
-
 criterion = torch.nn.L1Loss()
 
 # create an instance of an appropriate opimizer to train the model parameters (see https://pytorch.org/docs/stable/optim.html)
-
 optimizer = torch.optim.SGD(model.parameters(),learning_rate)
 
 """END TODO"""

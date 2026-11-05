@@ -45,24 +45,21 @@ class RegressionLearner(Learner):
                 targets = targets.to(device)
 
                 # TODO: Implement the batch update step.
-                loss = torch.tensor([0])
-                self.optimizer.zero_grad()
+                self.optimizer.zero_grad()                                                      # Reset all the gradients to zero (else new and ol gradients will be summed up)
+                predictions = self.model(data)                                                  # Run the model and store its predictions
+                loss = self.criterion(predictions, targets)                                     # Calculate the loss and store it as scalar
+                loss.backward()                                                                 # Calculate the gradients
+                self.optimizer.step()                                                           # Apply the gradients to the weights and the biases
 
-                predictions = self.model(data)
+                train_loss += loss.item() * len(data)                                           # Multiplies the loss-value with the amount of items it the batch
 
-                loss = self.criterion(predictions, targets)
-
-                loss.backward()
-                self.optimizer.step()
-
-                train_loss += loss.item() * len(data)
-
-            train_loss = train_loss / len(dataloader.dataset)
-
-            train_losses.append(train_loss)
+            train_loss = train_loss / len(dataloader.dataset)                                   # Divide the loss by the amount of total items during the run, giving us our mean-value for the epoch
+            train_losses.append(train_loss)                                                     # Add the loss from this epoch to a list which contains the loss of all the epochs
 
             print(f"train epoch [{epoch + 1}/{epochs}]:\ttrain loss = {train_loss:.6f}")   
 
+            # If the current training-loss is smaller or equal to
+            # the smallest loss in the list of training-losses, mark it as "leader".
             if train_loss <= min(train_losses):
                 self.save("leader")
 
@@ -75,34 +72,31 @@ class RegressionLearner(Learner):
     @torch.no_grad()
     def test(self, dataset: Dataset, device: torch.device):
 
-        self.model.to(device)
-
-        self.model.eval()  # set model in evaluation mode
-
-        test_loss = 0
+        self.model.to(device)                                   # Move the model to CPU / GPU
+        self.model.eval()                                       # set model in evaluation mode
+        test_loss = 0                                           # Initialize the test-loss variable
 
         # TODO: Compute the model's RMSE on the test dataset.
-        
-        #with torch.no_grad():
+        criterion = torch.nn.MSELoss()                          # Create the MSE loss function
         for data, targets in DataLoader(dataset):
-            data = data.to(device)
-            targets = targets.to(device)
+            data = data.to(device)                              # Move the data to the device CPU/GPU
+            targets = targets.to(device)                        # Move the targets to the device CPU/GPU
 
-            predictions = self.model(data)
-            loss = self.criterion(predictions, targets)
+            predictions = self.model(data)                      # Run the model and us e the recently moved data
+            loss = criterion(predictions, targets)              # Calculate the mean squared error
 
-            test_loss += loss.item() * len(data)
+            test_loss += loss.item() * len(data)                # Multiply the batch-loss with the amount of data in each batch
 
-        test_loss = (test_loss / len(dataset)) ** 0.5
+        test_loss = (test_loss / len(dataset)) ** 0.5           # Calculate the RMSE over the entire dataset
         return test_loss
 
     @torch.no_grad()
     def predict(self, dataset, device):
-        self.model.to(device)
-        self.model.eval()
-        data = dataset[:][0]
-        data = data.to(device)
-        results = self.model(data)
+        self.model.to(device)                                   # Move model to desired device CPU/GPU
+        self.model.eval()                                       # Put the model in evaluation mode
+        data = dataset[:][0]                                    # Pull the square footage for the houses
+        data = data.to(device)                                  # Move the data to the desired device CPU/GPU
+        results = self.model(data)                              # Run the model and store the results
         return results
 
 
